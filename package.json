@@ -1,0 +1,38 @@
+{
+  "name": "shawzin",
+  "version": "1.0.0",
+  "description": "Web interface for creating Shawzin music",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "build": "./node_modules/.bin/webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheGuywithTheHat/shawzin.git"
+  },
+  "author": "TGwTH",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/TheGuywithTheHat/shawzin/issues"
+  },
+  "homepage": "https://github.com/TheGuywithTheHat/shawzin#readme",
+  "dependencies": {
+    "purecss": "^1.0.1",
+    "vue": "^2.6.10",
+    "vue-router": "^3.1.3"
+  },
+  "devDependencies": {
+    "compression-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.4",
+    "css-loader": "^3.2.0",
+    "express": "^4.17.1",
+    "style-loader": "^1.0.0",
+    "uglifyjs-webpack-plugin": "^2.2.0",
+    "vue-loader": "^15.7.1",
+    "vue-template-compiler": "^2.6.10",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.7"
+  }
+}

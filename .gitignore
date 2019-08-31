@@ -1,0 +1,10 @@
+#node modules
+**/node_modules
+
+#config
+.eslintrc.js
+.vscode
+
+#temp files
+*.swp
+*.log
