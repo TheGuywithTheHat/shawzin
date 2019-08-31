@@ -27,7 +27,7 @@ export default {
     data() {
         return {
             cells: [],
-            notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G'],
+            notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G'].reverse(),
         };
     },
     methods: {
@@ -35,7 +35,19 @@ export default {
             navigator.clipboard.writeText(this.getEncoding());
         },
         getEncoding() {
-            return 'test successful';
+            let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+            let noteToChar = 'BCEJKMRSUhik';
+            let encoding = '5';
+            for(let x = 0; x < this.cells[0].length; x++) {
+                for(let y = 0; y < this.cells.length; y++) {
+                    if(this.cells[y][x]) {
+                        encoding += noteToChar.charAt(this.cells.length - 1 - y);
+                        encoding += alphabet.charAt(Math.floor(x / 64));
+                        encoding += alphabet.charAt(Math.floor(x % 64));
+                    }
+                }
+            }
+            return encoding;
         },
         click(x, y) {
             this.$set(this.cells[y], x, !this.cells[y][x]);
