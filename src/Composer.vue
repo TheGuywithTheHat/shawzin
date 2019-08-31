@@ -1,22 +1,33 @@
 <template>
-    <div class="content">
-        <table id="header-table">
-            <tr class="row" v-for="(row, y) in cells" :key="y + 'row'">
-                <td class="cell header-cell">
-                    {{notes[y]}}
-                </td>
-            </tr>
-        </table>
+    <div id="content">
+        <h1>Compozin'</h1>
+        <p>
+            Current in alpha! Only limited functionality at the moment. If you put multiple notes
+            in a column or put in over 100 notes, don't expect the song to play as you composed it.
+        </p>
+        <p>
+            Each measure has 4 beats, each beat can be split into quarters. A measure is 1
+            second long.
+        </p>
         <div id="music-container">
-            <table id="music-table">
-                <tr class="row note-row" v-for="(row, y) in cells" :key="y + 'row'">
-                    <td class="cell note-cell"
-                        :class="{ 'note-on': cells[y][x] }"
-                        v-for="(cell, x) in row"
-                        :key="y + x * 100 + 'cell'"
-                        @click="click(x, y)"></td>
+            <table id="header-table">
+                <tr class="row" v-for="(row, y) in cells" :key="y + 'row'">
+                    <td class="cell header-cell">
+                        {{notes[y]}}
+                    </td>
                 </tr>
             </table>
+            <div id="music-scroll">
+                <table id="music-table">
+                    <tr class="row note-row" v-for="(row, y) in cells" :key="y + 'row'">
+                        <td class="cell note-cell"
+                            :class="{ 'note-on': cells[y][x] }"
+                            v-for="(cell, x) in row"
+                            :key="y + x * 100 + 'cell'"
+                            @click="click(x, y)"></td>
+                    </tr>
+                </table>
+            </div>
         </div>
         <input class="pure-button pure-button-primary" type="button" value="Copy to clipboard" @click="copy()">
     </div>
@@ -50,6 +61,14 @@ export default {
             return encoding;
         },
         click(x, y) {
+            if(x >= this.cells[0].length - 16) {
+                let originalLength = this.cells[0].length;
+                for(let y = 0; y < this.cells.length; y++) {
+                    for(let x = originalLength; x < originalLength + 16; x++) {
+                        this.cells[y].push(false)
+                    }
+                }
+            }
             this.$set(this.cells[y], x, !this.cells[y][x]);
         },
     },
@@ -67,15 +86,13 @@ export default {
 
 <style scoped>
 #header-table {
-    margin: 1em 0.5em 1em 0;
+    margin-right: 0.5em;
     float: left;
 }
-
-#music-table {
-}
-
 #music-container {
     margin: 1em;
+}
+#music-scroll {
     overflow-x: auto;
 }
 
@@ -85,10 +102,6 @@ export default {
     vertical-align: top;
     position: relative;
     cursor: pointer;
-}
-
-.content {
-    padding: 1em;
 }
 
 .note-cell:first-child {

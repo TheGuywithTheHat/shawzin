@@ -12,13 +12,14 @@
 
 <script>
 import Composer from './Composer.vue';
+import About from './About.vue';
 import VueRouter from 'vue-router';
 import 'purecss/build/pure-min.css';
 import 'purecss/build/grids-responsive-min.css';
 var router = new VueRouter({
     routes: [
         { path: '/', component: Composer},
-        { path: '/about', component: Composer},
+        { path: '/about', component: About},
     ],
 });
 export default { router };
