@@ -49,4 +49,12 @@ input {
     display: flex;
     flex-direction: column;
 }
+.pure-form select {
+    border: 1px solid #E0E0E0;
+    background-color: inherit;
+}
+option {
+    background-color: #202020;
+}
+
 </style>

@@ -9,11 +9,18 @@
             Each measure has 4 beats, each beat can be split into quarters. A measure is 1
             second long.
         </p>
+        <form class="pure-form">
+            <fieldset>
+                <select v-model="selectedScale" @change="setScale">
+                    <option v-for="(s, i) in scales" :key="s.id" :value="i">{{s.name}}</option>
+                </select>
+            </fieldset>
+        </form>
         <div id="music-container">
             <table id="header-table">
-                <tr class="row" v-for="(row, y) in cells" :key="y + 'row'">
+                <tr class="row" v-for="(note, y) in notes" :key="y + 'row'">
                     <td class="cell header-cell">
-                        {{notes[y]}}
+                        {{note}}
                     </td>
                 </tr>
             </table>
@@ -38,7 +45,51 @@ export default {
     data() {
         return {
             cells: [],
-            notes: ['C', 'D', 'E', 'F', 'G', 'A', 'B', 'C', 'D', 'E', 'F', 'G'].reverse(),
+            notes: [],
+            scale: null,
+            selectedScale: 4,
+            scales: [
+                {
+                    name: 'Pentatonic Minor',
+                    id: 1,
+                    notes: 'CD#FGA#CD#FGA#CD',
+                },
+                {
+                    name: 'Pentatonic Major',
+                    id: 2,
+                    notes: 'CDEGACDEGACD',
+                },
+                {
+                    name: 'Chromatic',
+                    id: 3,
+                    notes: 'CC#DD#EFF#GG#AA#B',
+                },
+                {
+                    name: 'Hexatonic',
+                    id: 4,
+                    notes: 'CD#FF#GA#CD#FF#GA',
+                },
+                {
+                    name: 'Major',
+                    id: 5,
+                    notes: 'CDEFGABCDEFG',
+                },
+                {
+                    name: 'Minor',
+                    id: 6,
+                    notes: 'CDD#FGG#A#CDD#FG',
+                },
+                {
+                    name: 'Hirajoshi',
+                    id: 7,
+                    notes: 'CC#FF#A#CC#FF#ACC#',
+                },
+                {
+                    name: 'Phrygian',
+                    id: 8,
+                    notes: 'CC#EFGG#A#CC#EFG',
+                },
+            ],
         };
     },
     methods: {
@@ -48,7 +99,7 @@ export default {
         getEncoding() {
             let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
             let noteToChar = 'BCEJKMRSUhik';
-            let encoding = '5';
+            let encoding = '' + this.scale.id;
             for(let x = 0; x < this.cells[0].length; x++) {
                 for(let y = 0; y < this.cells.length; y++) {
                     if(this.cells[y][x]) {
@@ -71,6 +122,10 @@ export default {
             }
             this.$set(this.cells[y], x, !this.cells[y][x]);
         },
+        setScale() {
+            this.scale = this.scales[this.selectedScale];
+            this.notes = this.scale.notes.split(/(?<=.)(?=\w)/).reverse();
+        },
     },
     created() {
         let initialSize = 32;
@@ -79,18 +134,20 @@ export default {
             for(let x = 0; x < initialSize; x++) {
                 this.$set(this.cells[y], x, false);
             }
-        }
+        } 
+        this.setScale();
     }
 };
 </script>
 
 <style scoped>
 #header-table {
-    margin-right: 0.5em;
+    margin-right: 0.2em;
+    min-width: 1.5em;
     float: left;
 }
 #music-container {
-    margin: 1em;
+    margin: 1em 0;
 }
 #music-scroll {
     overflow-x: auto;
