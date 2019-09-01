@@ -5,10 +5,6 @@
             Current in alpha! Only limited functionality at the moment. If you put multiple notes
             in a column or put in over 100 notes, don't expect the song to play as you composed it.
         </p>
-        <p>
-            Each measure has 4 beats, each beat can be split into quarters. A measure is 1
-            second long.
-        </p>
         <form class="pure-form">
             <fieldset>
                 <select v-model="selectedScale" @change="setScale">
