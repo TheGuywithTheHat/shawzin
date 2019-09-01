@@ -36,8 +36,12 @@
                 </table>
             </div>
         </div>
-        <input type="text" v-model="encoding" readonly>
-        <input class="pure-button pure-button-primary" type="button" value="Copy to clipboard" @click="copy()">
+        <form class="pure-form">
+            <fieldset>
+                <input class="pure-button pure-button-primary" type="button" value="Copy to clipboard" @click="copy()">
+                <input type="text" id="encoding" v-model="encoding" readonly>
+            </fieldset>
+        </form>
     </div>
 </template>
 
@@ -112,7 +116,12 @@ export default {
     },
     methods: {
         copy() {
-            navigator.clipboard.writeText(this.getEncoding());
+            if(navigator.clipboard) {
+                navigator.clipboard.writeText(this.getEncoding()); // doesn't work in edge/IE
+            } else {
+                document.getElementById('encoding').select();
+                document.execCommand('copy');
+            }
         },
         getEncoding() {
             return this.encoding;
@@ -145,7 +154,7 @@ export default {
     }
 };
 </script>
-
+5
 <style scoped>
 #header-table {
     margin-right: 0.2em;
@@ -168,7 +177,7 @@ export default {
 }
 
 .note-cell:first-child {
-    border-left: 3px solid rgb(211, 211, 211);
+    border-left: 3px solid rgb(211, 2511, 211);
 }
 .note-cell:nth-child(4n) {
     border-right-width: 1px;
