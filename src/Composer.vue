@@ -36,6 +36,7 @@
                 </table>
             </div>
         </div>
+        <input type="text" v-model="encoding" readonly>
         <input class="pure-button pure-button-primary" type="button" value="Copy to clipboard" @click="copy()">
     </div>
 </template>
@@ -92,11 +93,8 @@ export default {
             ],
         };
     },
-    methods: {
-        copy() {
-            navigator.clipboard.writeText(this.getEncoding());
-        },
-        getEncoding() {
+    computed: {
+        encoding() {
             let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
             let noteToChar = 'BCEJKMRSUhik';
             let encoding = '' + this.scale.id;
@@ -110,6 +108,14 @@ export default {
                 }
             }
             return encoding;
+        }
+    },
+    methods: {
+        copy() {
+            navigator.clipboard.writeText(this.getEncoding());
+        },
+        getEncoding() {
+            return this.encoding;
         },
         click(x, y) {
             if(x >= this.cells[0].length - 16) {
