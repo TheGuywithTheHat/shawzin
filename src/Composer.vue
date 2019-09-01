@@ -14,6 +14,10 @@
                 <select v-model="selectedScale" @change="setScale">
                     <option v-for="(s, i) in scales" :key="s.id" :value="i">{{s.name}}</option>
                 </select>
+                <label for="16ths">16ths/beat</label>
+                <input type="number" id="16ths" v-model="sixteenths" min="1" max="16">
+                <label for="beats">beats/measure</label>
+                <input type="number" id="beats" v-model="beats" min="1" max="16">
             </fieldset>
         </form>
         <div id="music-container">
@@ -28,7 +32,11 @@
                 <table id="music-table">
                     <tr class="row note-row" v-for="(row, y) in cells" :key="y + 'row'">
                         <td class="cell note-cell"
-                            :class="{ 'note-on': cells[y][x] }"
+                            :class="{
+                                'note-on': cells[y][x],
+                                'beat-end': (x + 1) % sixteenths == 0,
+                                'measure-end': (x + 1) % (sixteenths * beats) == 0,
+                            }"
                             v-for="(cell, x) in row"
                             :key="y + x * 100 + 'cell'"
                             @click="click(x, y)"></td>
@@ -49,6 +57,8 @@
 export default {
     data() {
         return {
+            sixteenths: 4,
+            beats: 4,
             cells: [],
             notes: [],
             scale: null,
@@ -177,12 +187,12 @@ export default {
 }
 
 .note-cell:first-child {
-    border-left: 3px solid rgb(211, 2511, 211);
+    border-left: 3px solid rgb(211, 211, 211);
 }
-.note-cell:nth-child(4n) {
+.note-cell.beat-end {
     border-right-width: 1px;
 }
-.note-cell:nth-child(16n) {
+.note-cell.measure-end {
     border-right: 3px solid rgb(211, 211, 211);
 }
 .note-cell:hover {
@@ -205,5 +215,8 @@ export default {
 }
 .note-on:hover {
     background-color: rgb(184, 184, 184);
+}
+.pure-form label {
+    margin-left: 1em;
 }
 </style>

@@ -34,7 +34,7 @@ html {
 *, *::before, *::after {
     box-sizing: inherit;
 }
-.pure-form input[readonly] {
+.pure-form input[readonly], .pure-form input[type=number], .pure-form input[type=text] {
     border: 1px solid #E0E0E0;
     background-color: inherit;
 }
