@@ -66,7 +66,7 @@ export default {
                 {
                     name: 'Pentatonic Minor',
                     id: 1,
-                    notes: 'CD#FGA#CD#FGA#CD',
+                    notes: 'CD#FGA#CD#FGA#CD#',
                 },
                 {
                     name: 'Pentatonic Major',
@@ -81,7 +81,7 @@ export default {
                 {
                     name: 'Hexatonic',
                     id: 4,
-                    notes: 'CD#FF#GA#CD#FF#GA',
+                    notes: 'CD#FF#GA#CD#FF#GA#',
                 },
                 {
                     name: 'Major',
@@ -172,7 +172,7 @@ export default {
         },
         setScale() {
             this.scale = this.scales[this.selectedScale];
-            this.notes = this.scale.notes.split(/(?<=.)(?=\w)/).reverse();
+            this.notes = this.scale.notes.split(/(?=\w)/).reverse();
         },
         clear() {
             let initialSize = 32;
