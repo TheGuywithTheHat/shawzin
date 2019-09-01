@@ -163,6 +163,7 @@ export default {
             }
         },
         click(x, y) {
+            window.onbeforeunload = () => true;
             if(x >= this.cells[0].length - 16) {
                 let originalLength = this.cells[0].length;
                 for(let y = 0; y < this.cells.length; y++) {
