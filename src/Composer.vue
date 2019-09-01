@@ -46,6 +46,7 @@
         </div>
         <form class="pure-form">
             <fieldset>
+                <input class="pure-button" type="button" value="Import song" @click="importSong()">
                 <input class="pure-button pure-button-primary" type="button" value="Copy to clipboard" @click="copy()">
                 <input type="text" id="encoding" v-model="encoding" readonly>
             </fieldset>
@@ -57,6 +58,8 @@
 export default {
     data() {
         return {
+            alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+            noteToChar: 'BCEJKMRSUhik',
             sixteenths: 4,
             beats: 4,
             cells: [],
@@ -109,15 +112,13 @@ export default {
     },
     computed: {
         encoding() {
-            let alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-            let noteToChar = 'BCEJKMRSUhik';
             let encoding = '' + this.scale.id;
             for(let x = 0; x < this.cells[0].length; x++) {
                 for(let y = 0; y < this.cells.length; y++) {
                     if(this.cells[y][x]) {
-                        encoding += noteToChar.charAt(this.cells.length - 1 - y);
-                        encoding += alphabet.charAt(Math.floor(x / 64));
-                        encoding += alphabet.charAt(Math.floor(x % 64));
+                        encoding += this.noteToChar.charAt(this.cells.length - 1 - y);
+                        encoding += this.alphabet.charAt(Math.floor(x / 64));
+                        encoding += this.alphabet.charAt(Math.floor(x % 64));
                     }
                 }
             }
@@ -136,6 +137,31 @@ export default {
         getEncoding() {
             return this.encoding;
         },
+        importSong() {
+            let encoding = prompt('Paste encoded song');
+            if(encoding !== null) {
+                this.decode(encoding);
+            }
+        },
+        decode(str) {
+            this.clear();
+            let scale = parseInt(str.charAt(0));
+            for(let i = 0; i < this.scales.length; i++) {
+                if(this.scales[i].id == scale) {
+                    this.selectedScale = i;
+                    this.setScale();
+                    break;
+                }
+            }
+            for(let i = 0; i < (str.length - 1) / 3; i++) {
+                let c1 = str.charAt(1 + i * 3);
+                let c2 = str.charAt(2 + i * 3);
+                let c3 = str.charAt(3 + i * 3);
+                let y = this.cells.length - 1 - this.noteToChar.indexOf(c1);
+                let x = this.alphabet.indexOf(c2) * 64 + this.alphabet.indexOf(c3);
+                this.click(x, y);
+            }
+        },
         click(x, y) {
             if(x >= this.cells[0].length - 16) {
                 let originalLength = this.cells[0].length;
@@ -151,15 +177,18 @@ export default {
             this.scale = this.scales[this.selectedScale];
             this.notes = this.scale.notes.split(/(?<=.)(?=\w)/).reverse();
         },
+        clear() {
+            let initialSize = 32;
+            for(let y = 0; y < 12; y++) {
+                this.$set(this.cells, y, []);
+                for(let x = 0; x < initialSize; x++) {
+                    this.$set(this.cells[y], x, false);
+                }
+            } 
+        }
     },
     created() {
-        let initialSize = 32;
-        for(let y = 0; y < 12; y++) {
-            this.$set(this.cells, y, []);
-            for(let x = 0; x < initialSize; x++) {
-                this.$set(this.cells[y], x, false);
-            }
-        } 
+        this.clear();
         this.setScale();
     }
 };
