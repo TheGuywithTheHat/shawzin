@@ -11,9 +11,9 @@
                     <option v-for="(s, i) in scales" :key="s.id" :value="i">{{s.name}}</option>
                 </select>
                 <label for="16ths">16ths/beat</label>
-                <input type="number" id="16ths" v-model="sixteenths" min="1" max="16">
+                <input type="number" id="16ths" v-model="sixteenths" v-on="{ change: timingChanged, keyup: timingChanged }" min="1" max="16">
                 <label for="beats">beats/measure</label>
-                <input type="number" id="beats" v-model="beats" min="1" max="16">
+                <input type="number" id="beats" v-model="beats" v-on="{ change: timingChanged, keyup: timingChanged }" min="1" max="16">
             </fieldset>
         </form>
         <div id="music-container">
@@ -26,16 +26,14 @@
             </table>
             <div id="music-scroll">
                 <table id="music-table">
-                    <tr class="row note-row" v-for="(row, y) in cells" :key="y + 'row'">
-                        <td class="cell note-cell"
-                            :class="{
-                                'note-on': cells[y][x],
-                                'beat-end': (x + 1) % sixteenths == 0,
-                                'measure-end': (x + 1) % (sixteenths * beats) == 0,
+                    <tr class="row note-row" v-for="y in notes.length" :key="(y-1) + 'row'">
+                        <td :cell-id="(y-1) + ((x-1) << 4)"
+                            class="cell note-cell" :class="{
+                                'beat-end': x % sixteenths == 0,
+                                'measure-end': x % (sixteenths * beats) == 0,
                             }"
-                            v-for="(cell, x) in row"
-                            :key="y + x * 100 + 'cell'"
-                            @click="click(x, y)"></td>
+                            v-for="x in size" :key="((y-1) + ((x-1) << 4)) + 'cell'"
+                            @click="e => click(e)"></td>
                     </tr>
                 </table>
             </div>
@@ -44,7 +42,7 @@
             <fieldset>
                 <input class="pure-button" type="button" value="Import song" @click="importSong()">
                 <input class="pure-button pure-button-primary" type="button" value="Copy to clipboard" @click="copy()">
-                <input type="text" id="encoding" v-model="encoding" readonly>
+                <input type="text" id="encoding" readonly v-bind:value="songString">
             </fieldset>
         </form>
     </div>
@@ -58,7 +56,8 @@ export default {
             noteToChar: 'BCEJKMRSUhik',
             sixteenths: 4,
             beats: 4,
-            cells: [],
+            size: 32,
+            songString: '',
             notes: [],
             scale: null,
             selectedScale: 4,
@@ -106,32 +105,33 @@ export default {
             ],
         };
     },
-    computed: {
-        encoding() {
+    computed: { },
+    methods: {
+        timingChanged() {
+            this.decode(this.songString);
+        },
+        encode() {
             let encoding = '' + this.scale.id;
-            for(let x = 0; x < this.cells[0].length; x++) {
-                for(let y = 0; y < this.cells.length; y++) {
-                    if(this.cells[y][x]) {
-                        encoding += this.noteToChar.charAt(this.cells.length - 1 - y);
+            let musicTable = document.getElementById('music-table');
+            for(let x = 0; x < musicTable.children[0].children.length; x++) {
+                for(let y = 0; y < musicTable.children.length; y++) {
+                    let cell = musicTable.children[y].children[x];
+                    if(cell.classList.contains('note-on')) {
+                        encoding += this.noteToChar.charAt(this.notes.length - 1 - y);
                         encoding += this.alphabet.charAt(Math.floor(x / 64));
                         encoding += this.alphabet.charAt(Math.floor(x % 64));
                     }
                 }
             }
-            return encoding;
-        }
-    },
-    methods: {
+            this.songString = encoding;
+        },
         copy() {
             if(navigator.clipboard) {
-                navigator.clipboard.writeText(this.getEncoding()); // doesn't work in edge/IE
+                navigator.clipboard.writeText(this.songString); // doesn't work in edge/IE
             } else {
                 document.getElementById('encoding').select();
                 document.execCommand('copy');
             }
-        },
-        getEncoding() {
-            return this.encoding;
         },
         importSong() {
             let encoding = prompt('Paste encoded song');
@@ -141,6 +141,7 @@ export default {
         },
         decode(str) {
             this.clear();
+
             let scale = parseInt(str.charAt(0));
             for(let i = 0; i < this.scales.length; i++) {
                 if(this.scales[i].id == scale) {
@@ -149,44 +150,57 @@ export default {
                     break;
                 }
             }
-            for(let i = 0; i < (str.length - 1) / 3; i++) {
-                let c1 = str.charAt(1 + i * 3);
-                let c2 = str.charAt(2 + i * 3);
-                let c3 = str.charAt(3 + i * 3);
-                let y = this.cells.length - 1 - this.noteToChar.indexOf(c1);
-                let x = this.alphabet.indexOf(c2) * 64 + this.alphabet.indexOf(c3);
-                this.click(x, y);
+
+            // Find out the length of the song
+            if (str.length >= 4) {
+                // Ceil to the closest multiple of beats * 16th (i.e. force render a whole bar)
+                let length = this.alphabet.indexOf(str.charAt(str.length - 2)) * 64 + this.alphabet.indexOf(str.charAt(str.length - 1)) + 1;
+                let r = length % (this.beats * this.sixteenths);
+                this.size = r == 0 ? length : length + this.beats * this.sixteenths - r;
             }
+
+            this.songString = str;
+            setTimeout(() => {  // We need to wait for the table to be resized before switching the notes on
+              for(let i = 0; i < (str.length - 1) / 3; i++) {
+                  let c1 = str.charAt(1 + i * 3);
+                  let c2 = str.charAt(2 + i * 3);
+                  let c3 = str.charAt(3 + i * 3);
+                  let y = this.notes.length - 1 - this.noteToChar.indexOf(c1);
+                  let x = this.alphabet.indexOf(c2) * 64 + this.alphabet.indexOf(c3);
+
+                  let cell = document.querySelector(`td[cell-id="${y + (x << 4)}"]`);
+                  if(!cell.classList.contains('note-on'))
+                      cell.classList.toggle('note-on');
+              }
+            }, 75);
         },
-        click(x, y) {
+        click(e) {
             window.onbeforeunload = () => true;
-            if(x >= this.cells[0].length - 16) {
-                let originalLength = this.cells[0].length;
-                for(let y = 0; y < this.cells.length; y++) {
-                    for(let x = originalLength; x < originalLength + 16; x++) {
-                        this.cells[y].push(false)
-                    }
-                }
+            let cellId = e.target.getAttribute('cell-id');
+            let x = cellId >> 4;
+            let y = cellId & 15;
+            if(x >= this.size - 16) {
+                this.size += this.beats * this.sixteenths;  // Add a whole new bar
             }
-            this.$set(this.cells[y], x, !this.cells[y][x]);
+            e.target.classList.toggle('note-on');
+            this.encode();
         },
         setScale() {
             this.scale = this.scales[this.selectedScale];
             this.notes = this.scale.notes.split(/(?=\w)/).reverse();
         },
         clear() {
-            let initialSize = 32;
-            for(let y = 0; y < 12; y++) {
-                this.$set(this.cells, y, []);
-                for(let x = 0; x < initialSize; x++) {
-                    this.$set(this.cells[y], x, false);
-                }
-            } 
+            let cells = document.querySelectorAll('.note-on');
+            for(let i = 0; i < cells.length; i++) {
+                cells[i].classList.toggle('note-on');
+            }
+            this.size = this.beats * this.sixteenths * 2;
+            this.songString = '' + this.scale.id;
         }
     },
     created() {
-        this.clear();
         this.setScale();
+        this.clear();
     }
 };
 </script>
