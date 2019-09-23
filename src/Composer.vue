@@ -102,6 +102,11 @@ export default {
                     id: 8,
                     notes: 'CC#EFGG#A#CC#EFG',
                 },
+                {
+                    name: 'Yo',
+                    id: 9,
+                    notes: 'C#D#F#G#A#C#D#F#G#A#C#D#',
+                },
             ],
         };
     },
