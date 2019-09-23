@@ -1,10 +1,6 @@
 <template>
-    <div id="content">
+    <div>
         <h1>Compozin'</h1>
-        <p>
-            Current in alpha! Only limited functionality at the moment. If you put multiple notes
-            in a column or put in over 100 notes, don't expect the song to play as you composed it.
-        </p>
         <form class="pure-form">
             <fieldset>
                 <select v-model="selectedScale" @change="setScale">
@@ -45,11 +41,20 @@
                 <input type="text" id="encoding" readonly v-bind:value="songString">
             </fieldset>
         </form>
+        <p>
+            Current in beta! Only limited functionality at the moment. If you put multiple notes
+            in a column or put in over 100 notes, don't expect the song to play as you composed it.
+        </p>
+        <about></about>
     </div>
 </template>
 
 <script>
+import About from './About.vue';
 export default {
+    components: {
+        About,
+    },
     data() {
         return {
             alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',

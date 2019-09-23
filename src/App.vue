@@ -1,12 +1,12 @@
 <template>
     <div id="main">
-        <div id="topbar" class="pure-menu pure-menu-horizontal">
+        <!-- <div id="topbar" class="pure-menu pure-menu-horizontal">
             <router-link to="/" class="pure-menu-heading pure-menu-link">Compose</router-link>
             <ul class="pure-menu-list">
                 <li class="pure-menu-item"><router-link to="/about" class="pure-menu-link">About</router-link></li>
             </ul>
-        </div>
-        <keep-alive><router-view></router-view></keep-alive>
+        </div> -->
+        <keep-alive><router-view id="content"></router-view></keep-alive>
     </div>
 </template>
 
@@ -34,6 +34,9 @@ html {
 *, *::before, *::after {
     box-sizing: inherit;
 }
+h1 {
+    text-align: center;
+}
 .pure-form input[readonly], .pure-form input[type=number], .pure-form input[type=text] {
     border: 1px solid #E0E0E0;
     background-color: inherit;
@@ -55,5 +58,17 @@ html {
 option {
     background-color: #202020;
 }
-
+a:visited {
+    color: #0084ff;
+}
+a {
+    text-decoration: none;
+    color: #339cff;
+}
+a:hover {
+    text-decoration: underline;
+}
+a:active {
+    color: #66b5ff;
+}
 </style>
