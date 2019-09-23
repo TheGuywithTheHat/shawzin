@@ -198,6 +198,7 @@ export default {
         setScale() {
             this.scale = this.scales[this.selectedScale];
             this.notes = this.scale.notes.split(/(?=\w)/).reverse();
+            this.encode();
         },
         clear() {
             let cells = document.querySelectorAll('.note-on');
