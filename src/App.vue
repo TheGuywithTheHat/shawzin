@@ -37,9 +37,14 @@ html {
 h1 {
     text-align: center;
 }
-.pure-form input[readonly], .pure-form input[type=number], .pure-form input[type=text] {
+.pure-form input[readonly], .pure-form input[type=number], .pure-form input[type=text], .pure-form select {
     border: 1px solid #E0E0E0;
     background-color: inherit;
+    box-shadow: none;
+    border-radius: 0;
+}
+.pure-form input[type=button] {
+    border-radius: 0;
 }
 #content {
     flex-grow: 1;
@@ -50,10 +55,6 @@ h1 {
     height: 100vh;
     display: flex;
     flex-direction: column;
-}
-.pure-form select {
-    border: 1px solid #E0E0E0;
-    background-color: inherit;
 }
 option {
     background-color: #202020;
