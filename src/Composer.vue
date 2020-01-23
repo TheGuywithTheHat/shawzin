@@ -1,16 +1,15 @@
 <template>
     <div>
         <h1>Compozin'</h1>
-        <form class="pure-form">
-            <fieldset>
-                <select v-model="selectedScale" @change="setScale">
-                    <option v-for="(s, i) in scales" :key="s.id" :value="i">{{s.name}}</option>
-                </select>
-                <label for="16ths">16ths/beat</label>
-                <input type="number" id="16ths" v-model="sixteenths" v-on="{ change: timingChanged, keyup: timingChanged }" min="1" max="16">
-                <label for="beats">beats/measure</label>
-                <input type="number" id="beats" v-model="beats" v-on="{ change: timingChanged, keyup: timingChanged }" min="1" max="16">
-            </fieldset>
+        <form class="min-form">
+            <select id="scale" v-model="selectedScale" @change="setScale">
+                <option v-for="(s, i) in scales" :key="s.id" :value="i">{{s.name}}</option>
+            </select>
+            <label for="scale">scale</label>
+            <input type="number" id="16ths" v-model="sixteenths" v-on="{ change: timingChanged, keyup: timingChanged }" min="1" max="16">
+            <label for="16ths">16ths of a second per beat</label>
+            <input type="number" id="beats" v-model="beats" v-on="{ change: timingChanged, keyup: timingChanged }" min="1" max="16">
+            <label for="beats">beats per measure</label>
         </form>
         <div id="music-container">
             <table id="header-table">
@@ -33,37 +32,38 @@
                     </tr>
                 </table>
             </div>
+            <div id="right-filler"></div>
         </div>
-        <form class="pure-form">
-            <fieldset>
-                <input class="pure-button" type="button" value="Import song" @click="importSong()">
-                <input class="pure-button pure-button-primary" type="button" value="Copy to clipboard" @click="copy()">
-                <input type="text" id="encoding" readonly v-bind:value="songString">
-            </fieldset>
+        <form>
+            <Button text="Import song" @click="importSong()"></Button>
+            <Button text="Copy to clipboard" @click="copy()"></Button>
+            <div class="skewed outlined-element">
+                <input type="text" id="encoding" class="skewed-inner" readonly v-bind:value="songString">
+            </div>
         </form>
         <p>
             Current in beta! Only limited functionality at the moment. If you put multiple notes
             in a column or put in over 100 notes, don't expect the song to play as you composed it.
         </p>
-        <about></about>
     </div>
 </template>
 
 <script>
-import About from './About.vue';
+import Vue from 'vue';
+import Button from './Button.vue';
 export default {
     components: {
-        About,
+        Button,
     },
     data() {
         return {
-            alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+            alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/', 
             noteToChar: 'BCEJKMRSUhik',
             sixteenths: 4,
             beats: 4,
-            size: 32,
-            songString: '',
-            notes: [],
+            size: 32, // length of song in beats
+            songString: '', // encoded song
+            notes: [], // available notes that can be used, based on the scale in use
             scale: null,
             selectedScale: 4,
             scales: [
@@ -149,7 +149,7 @@ export default {
                 this.decode(encoding);
             }
         },
-        decode(str) {
+        async decode(str) {
             this.clear();
 
             let scale = parseInt(str.charAt(0));
@@ -170,19 +170,20 @@ export default {
             }
 
             this.songString = str;
-            setTimeout(() => {  // We need to wait for the table to be resized before switching the notes on
-              for(let i = 0; i < (str.length - 1) / 3; i++) {
-                  let c1 = str.charAt(1 + i * 3);
-                  let c2 = str.charAt(2 + i * 3);
-                  let c3 = str.charAt(3 + i * 3);
-                  let y = this.notes.length - 1 - this.noteToChar.indexOf(c1);
-                  let x = this.alphabet.indexOf(c2) * 64 + this.alphabet.indexOf(c3);
 
-                  let cell = document.querySelector(`td[cell-id="${y + (x << 4)}"]`);
-                  if(!cell.classList.contains('note-on'))
-                      cell.classList.toggle('note-on');
-              }
-            }, 75);
+            await Vue.nextTick();
+            for(let i = 0; i < (str.length - 1) / 3; i++) {
+                let c1 = str.charAt(1 + i * 3);
+                let c2 = str.charAt(2 + i * 3);
+                let c3 = str.charAt(3 + i * 3);
+                let y = this.notes.length - 1 - this.noteToChar.indexOf(c1);
+                let x = this.alphabet.indexOf(c2) * 64 + this.alphabet.indexOf(c3);
+
+                let cell = document.querySelector(`td[cell-id="${y + (x << 4)}"]`);
+                if(!cell.classList.contains('note-on')) {
+                    cell.classList.toggle('note-on');
+                }
+            }
         },
         click(e) {
             window.onbeforeunload = () => true;
@@ -195,9 +196,10 @@ export default {
             e.target.classList.toggle('note-on');
             this.encode();
         },
-        setScale() {
+        async setScale() {
             this.scale = this.scales[this.selectedScale];
             this.notes = this.scale.notes.split(/(?=\w)/).reverse();
+            await Vue.nextTick();
             this.encode();
         },
         clear() {
@@ -209,8 +211,8 @@ export default {
             this.songString = '' + this.scale.id;
         }
     },
-    created() {
-        this.setScale();
+    async mounted() {
+        await this.setScale();
         this.clear();
     }
 };
@@ -220,13 +222,28 @@ export default {
 #header-table {
     margin-right: 0.2em;
     min-width: 1.5em;
-    float: left;
 }
 #music-container {
     margin: 1em 0;
+    display: flex;
 }
 #music-scroll {
     overflow-x: auto;
+}
+#right-filler {
+    flex-grow: 1;
+    border-top: 1px solid rgb(128, 128, 128);
+    border-bottom: 1px solid rgb(128, 128, 128);
+    box-shadow: inset 100px 0 100px -100px rgba(255, 255, 255, 0.2);
+}
+
+#encoding {
+    border: none;
+    padding: 0;
+}
+.outlined-element {
+    border: 1px solid var(--color-accent);
+    padding: 9px 19px;
 }
 
 .note-cell {
@@ -269,5 +286,17 @@ export default {
 }
 .pure-form label {
     margin-left: 1em;
+}
+
+
+.min-form input, .min-form select {
+    border: none;
+    text-align-last: right;
+    font-size: 1.5em;
+    color: var(--color-accent);
+}
+option {
+    background-color: var(--color-bg);
+    direction: rtl;
 }
 </style>

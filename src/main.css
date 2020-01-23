@@ -1,0 +1,79 @@
+:root {
+    --color-accent: #BEA966;
+    --color-accent-lighter: #D4C79B;
+    --color-bg: #202020;
+    --color-primary: #E0E0E0;
+}
+
+
+html {
+    box-sizing: border-box;
+    background-color: var(--color-bg);
+    color: var(--color-primary);
+    font-family: sans-serif;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+body {
+    margin: 0;
+}
+
+h1 {
+    text-align: center;
+    font-family: serif;
+}
+
+input[readonly], input[type=number], input[type=text], select {
+    border: 1px solid var(--color-primary);
+    background-color: inherit;
+    box-shadow: none;
+    border-radius: 0;
+    font-size: unset;
+    color: var(--color-primary);
+}
+input[type=button] {
+    border-radius: 0;
+}
+option {
+    background-color: var(--color-bg);
+}
+a {
+    text-decoration: none;
+    color: var(--color-accent);
+}
+a:hover {
+    text-decoration: underline;
+}
+a:active {
+    color: var(--color-accent-lighter);
+}
+
+fieldset {
+    border: none;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.skewed {
+    transform: skew(-25deg);
+    display: inline-block;
+    margin-left: 10px;
+}
+.skewed > * {
+    display: block;
+    transform: skew(25deg);
+}
+
+.filler {
+    flex-grow: 1;
+}
+
+::-webkit-scrollbar {
+    background-color: rgba(0, 0, 0, 0);
+}
+::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+}
