@@ -295,8 +295,13 @@ export default {
     font-size: 1.5em;
     color: var(--color-accent);
 }
+.min-form select {
+    cursor: pointer;
+}
 option {
     background-color: var(--color-bg);
+    color: var(--color-primary);
+    font-size: initial;
     direction: rtl;
 }
 </style>
